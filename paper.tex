@@ -104,185 +104,223 @@ simulations and presents the conclusions of our work.
 \section{Problem Domain and Simulation Environment}
 \label{sec:Framework}
 
-The present work is a meta-approach that is motivated by the desire to apply
-existing scheduling approaches within a framework that is realistic and
-operationally practical.  In terms of scheduling taxonomy, we assume a dynamic
-scheduling formulation in which the computational jobs (we call them workflows)
-are modeled as directed acyclic graphs, i.e., the tasks of a workflow have
-precedence constraints.  Furthermore, each workflow (not individual tasks) is
-endowed with a deadline. 
+The present work is an extension to previous work \cite{pdpta18} in which a
+model-based approach to dynamically scheduling tasks from DAGs (called
+workflows) was introduced.  Four scheduling algorithms were tested in a
+simulation environment \cite{soasim} given the same 24-hour simulated period
+of arriving workflows ranging in size from 5 tasks up to 800.  Each workflow
+had a known, predetermined deadline and scheduling algorithms were evaluated
+based both on the number of workflows completed before their deadline and the
+distribution of workflow counts completed at various normalized proportions
+past their deadline (e.g., workflows up to 100\% late relative to the amount
+of time between their arrival and deadline).
 
-Our framework, illustrated in Figure \ref{fig:platform}, consists of one
-centralized scheduler and two instances of the computational platform.  The
-first instance, denoted as the actual platform, represents the actual machines
-(virtual or physical) upon which the actual workflows' tasks are to be executed.
-The second instance of the platform, denoted as the model platform, is a
-mathematical and/or simulated model representation of the actual platform.  The
-scheduler component makes decisions about what machine each task is to be
-executed on and when (at or after all the tasks precedence constraints are
-satisfied) that execution should begin.  The scheduler makes use of a scheduling
-algorithm, which requires some model of the workflows' tasks' requirements.
-Scheduling decisions are implemented by a task assigner particular to the
-platform, model or actual.
+Scheduling algorithms are used to determine from a given queue of tasks
+ready to begin executing (i.e. tasks of arrived workflows that have no
+precedence constraints or whose precedent tasks have all completed) both
+when the task should begin executing and on which machine of the platform.
+Unlike some scheduling research, tasks are permitted to executing concurrently
+with other tasks on the same machine which increases machines' overall load
+on resources such as CPU and memory and thereby slows the rate of work on each
+executing task.  Original work in \cite{pdpta09} details this non-linear
+degradation of rate of work (efficiency) due to concurrent task execution.
+
+Figure \ref{fig:platform} illustrates the various components and general
+flow of information within the model-based approach to executing and evaluating
+scheduling algorithms.  Whereas the modeled tasks' requirements (CPU load,
+required number of CPU cycles, and memory load) may contain errors relative to
+the true values of those tasks, the model platform may diverge from the
+actual platform in terms of which tasks are completed and which are still
+executing.
 
 \begin{figure}
 	\begin{center}
 		\includegraphics[angle=-90,width=0.5\textwidth]{figures/PlatformDiagram.pdf}
 	\end{center}
-	\caption{Block diagram illustrating proposed framework.}
+	\caption{Block diagram illustrating model-based framework from
+		\cite{pdpta18}.}
 	\label{fig:platform}
 \end{figure}
 
-Much past research has focused on the scheduler component of Figure
-\ref{fig:platform}; building schedulers to achieve enhanced performance and/or
-robustness.  This is often achieved by focusing on the modeled workflow's
-rquirements information provided to the scheduler.  In addition to modeling
-requirements, our framework also emphasizes modeling of the platform resources
-through the model platform component, providing additional opportunities for
-research and improvement.  Such improvements can be realized by building more
-accurate models or by making use of feedback from the actual platform to correct
-the model platform, indicated by the dashed line of Figure \ref{fig:platform}.
+All four studied scheduling algorithms were shown to be sensitive to
+even small amounts of error in modeled tasks.  Each scheduling algorithm
+exhibited a decreased percent of workflow completed ahead of their deadline
+with the smallest amount of error studied.  For three of the scheduling
+algorithms the decrease was substantial, but relatively equal, regardless of
+the amount of error.  For the fourth scheduling algorithm, the decrease was
+less severe overall and was propotionate to the amount of error.  The
+fourth algorithm was thus declared to be somewhat robust to small amounts of
+error (less than 0.5\%) but ultimately, like all three others, was not
+robust for errors of 1\% or greater.
 
-Development and evaluation of static schedules, and schedulers, make use of the
-components below the dotted line to build a schedule (set of scheduling
-decisions for where and when each task should be executed).  That static
-schedule is then used by the actual task assigner component, e.g., via a lookup
-table, in a running system like that represented above the dotted line.  Also,
-for scheduling algorithms that require training, or offline optimization of
-parameters, the same components below the dotted line would be used prior to
-deployment of the algorithm in the scheduler of a live system, represented
-by the components above the dashed-dotted line.
+The main result of \cite{pdpta18} showed that incorporating feedback of
+task completions from the actual platform to the model platform thereby
+preventing the model platform from modeling a task completing before the
+actual task completed dramatically increased robustness of all scheduling
+algorithms for even errors up to 90\% (the highest amount studied).  Figure
+\ref{fig:underestimating} illustrates why the model platform underestimating
+the requirements of a task and thereby modeling it as completed ahead of the
+actual task can be so detrimental.
 
-In the ideal case that the model components match the behavior of the
-corresponding actual components, feedback from the actual platform is
-unnecessary. Realistically, however, the model components will have deviations
-(or errors) in comparison to the actual components with how they
-model the tasks' requirements and the availability of platform resources.  This
-leads to erroneous information being presented to the scheduler that can be
-summarized as two interrelated types.  First, task requirement error results in
-inaccurate information about resource load in the model platform, which is
-utilized by the scheduler.  Because all scheduling algorithms must fundamentally
-determine when to schedule additional tasks on already-loaded resources versus
-when to delay starting new tasks until some already-running tasks complete and
-the load of the resources lightens (increasing its efficiency), an algorithm
-given wrong information about resource load will generally make poor
-decisions.
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{figures/UnderestimatedErrorEffect_ModelTaskWork.pdf}
+		\includegraphics[width=0.5\textwidth]{figures/UnderestimatedErrorEffect_ActualTaskWork.pdf}
+	\end{center}
+	\caption{Illustrating the disconnect due to error such that model task
+		requirements underestimate actual task requirements and the model
+		task finishes ahead of the actual task.}
+	\label{fig:underestimating}
+\end{figure}
 
-The second type of error the model may exhibit is in the representation of
-how much work a task requires to be completed before the task is considered
-finished.  When a model's error causes a task's work requirement to be
-underestimated, it can lead the scheduling algorithm to assign additional
-work to the resource modeled as now having a lightened load.  In this scenario
-the error compounds if the algorithm assigns new tasks to the resource because
-the additional load causes the atual system's resource to become even less
-efficient, further diverging the model from the actual system and causing the
-task erroneously modeled as finished to take even longer to finish in the
-actual system.  It is also possible that the model for a task overestimates
-the task's work requirement in which case the model of the resource remains
-loaded while the actual system's resource may be idle.
+In Figure \ref{fig:underestimating} two tasks, $t_1$ and $t_2$, both have
+the same amount of CPU cycles, $C$, required for their completion.  In the
+top half is the modeled platform's view of time in which task $t_1$ begins
+executing first and when it completed, $t_2$ is scheduled to immediately
+begin executing.  However, because the modeled requirements of $t_1$ were
+an underestimate of the actual $t_1$'s requirements, when the model of
+$t_1$ finishes and $t_2$ is scheduled to begin, the actual platform is not
+yet finished with $t_1$ and thus must work concurrently on $t_1$ and $t_2$
+for some time until the actual $t_1$ task does complete.  This causes both
+$t_1$ and $t_2$ to have actual completion times later than the modeled
+completion times because of the unintentionally-overallocated resources of
+the machine executing the tasks.  By extension, if another task, say $t_3$,
+were to be scheduled to begin after $t_2$ finishes this problem could compound
+because $t_2$'s actual completion would delayed by concurrent execution with
+$t_1$ and further delayed by concurrent execution with $t_3$.
 
-To counteract the effect of the model diverging from the actual system in
-terms of knowledge of which tasks are running, the model may be improved
-using feedback from the actual system regarding task completion.  A simple
-implementation of this feedback in practice is to instrument the actual system
-to provide periodic information about the running tasks on each system
-resource.  However, this can cause the model to `lag' behind the actual system
-if modeled tasks are not considered completed until a periodic check reveals
-its actual system counterpart is no longer executing.  Because scheduling
-algorithms make decisions once the state of the system changes in response to
-tasks finishing, the aforementioned `lag' may be avoided by having the actual
-system provide event-based feedback upon completion of each task.  This latter
-`event-driven' approach is adopted in our framework.
+The previous example illustrates why allowing the model to platform to
+inform scheduling algorithms when tasks are complete and machines are
+idle (or less loaded) in the presense of error which may underestimate tasks'
+true requirements can be so detrimental.  With feedback of every task's
+completion from the actual platform the modeled completion times of tasks
+may be safely ignored.  However, complete feedback of all tasks' completion
+may be impractical in a live system, or may simply be cost-prohibitive.
+This paper thus seeks to address the question of whether partial feedback
+of tasks' completion times may be sufficient to achieve some level of
+robustness to model error.  In addition, based specifically on the
+knowledge of the underestimating problem illustrated prior, in Section
+\ref{sec:Biasing} that follows a specific approach to counteracting
+that problem by biasing model task requirements is proposed.  Results of
+both partial feedback and biasing are presented in Section \ref{sec:Results}.
 
 
-\section{Use of Biasing}
+\section{Biasing Model Requirements}
 \label{sec:Biasing}
 
-This section presents simulated results of the outcomes of scheduling algorithms
-whose decisions are made based on a model platform of the (simulated) actual
-system in which error is introduced in one aspect of the workflows' tasks'
-requirements.  It is shown that by using actual task completion events (fed back
-from the actual platform) to correct inaccuracies present in the model
-platform, all scheduling algorithms analyzed become very robust to errors in the
-tasks' requirements considered.
+As illustrated in Figure \ref{fig:underestimating}, if the model task
+requirements are an underestimate of the actual task's requirements then
+scheduling algorithms may schedule future tasks to begin executing
+unintentionally-concurrent with other tasks, delaying their completion.
+However, if the model is known to have error which may underestimate
+task requirements, then the model task requirements could simply be
+biased by increasing its value in order to reduce (or ideally, eliminate)
+the probability that it underestimates the actual task requirements.
+In this section three proposed strategies for biasing model task
+requirements are proposed.
 
-All simulations were performed using simulator software developed for
-previous research \cite{costmin} and made publically available as open source
-\cite{soasim}.  As in \cite{costmin} workflows are defined as a directed
-acyclic graph where graph nodes represent the computational tasks which are
-individually schedulable to execute on one of the platform's available machines.
-Graph edges represent precedence constraint where one task must complete
-execution before the connected task is able to be scheduled and begin
-execution.  In every simulation a scheduling algorithm
-is used to schedule tasks from arriving workflows of one of three types, as
-also defined in \cite{costmin}: small workflows representative of simple
-interactive application jobs, medium workflows representative of web services
-jobs, and large workflows representative of large-scale batch-oriented jobs.
-Various workflow and task characteristics are summarized in Table
-\ref{tab:params}.
-
-\begin{table}
-	\begin{tabular}{|l|c|c|c|}
-		\hline
-		\textbf{Parameter}	& \textbf{Small}	& \textbf{Medium}	& \textbf{Large} \\
-		\hline
-		Total tasks				& [5,16]	& [10,72]	& [45,800] \\
-		Potential Task Parallelism	& [1,2]	& [2,3]		& [5,20] \\
-		Task CPU cycles (work)	& [1,2.5]	& [10,50]	& [50,175] \\
-		Task CPU utilization	& [0.5,1]	& [0.5,1]	& [0.5,1] \\
-		Task memory footprint	& [0.05,0.15] & [0.05,0.1] & [0.05,0.1] \\
-		\hline
-	\end{tabular}
-	\caption{Table of basic workflow (DAG) sizes and tasks' requirements by
-		workflow type.}
-	\label{tab:params}
-\end{table}
-
-As part of the simulation studies the model workflows are given task
-requirements where the tasks' amount of CPU cycles ($C_M$) to be completed has
-an error term applied to it with respect to the actual value ($C_A$).
-This error term parameter $X$ is varied between experiments from 0.001 to 0.9.
+The simplest form of biasing would be to add a constant value to each
+task requirement.  If the maximum magnitude of error for which a model
+task requirement may underestimate the actual task requirement is known,
+then that value would be the ideal bias constant value because it would
+eliminate the model from ever underestimating task requirements but
+bound the worst overestimate to the smallest amount possible for such a
+constant value biasing strategy.  Practically, the maximum error magnitude
+is unlikely to be known, though because it is the most ideal circumstance
+for biasing it is included here and in simulated results of Section
+\ref{sec:Results}.  The equation for a simple constant bias value, $C$,
+addition to each model task requirement, $\hat{X}$, to yield a biased
+model task requirement, $\hat{X^b}$, is given in Eq.
+\ref{eq:cbias}.
 
 \begin{equation}
-\begin{split}
-C_M & \leftarrow (1+x)C_A \\
-x & \in [-X,X]
-\end{split}
+\hat{X^b} \xleftarrow{c} \hat{X} + C
+\label{eq:cbias}
 \end{equation}
 
-\noindent The values for $x$ drawn from $[-X,X]$ assume a uniform distribution.
-
-As with \cite{costmin} all simulations used a simulated platform of 16 machines
-with the same resource capacities: $4$ CPUs and a normalized memory capacity of
-$1.0$.  From Table \ref{tab:params}, then, each task would consume between half
-and all of a single CPU and between $5\%$ and $15\%$ (for small workflows, or
-$10\%$ for medium and large) of total memory.  For all numeric results for
-$10\%$ for medium and large) of total memory.  Platform machine efficiency was
-simulated the same as in \cite{costmin} where cumulative CPU load of all
-executing tasks on a machine, $\ell_c$, resulted in an effiency, $e_c$ given in
-Eq. \ref{eq:cpueff}.  Memory effiency, $e_m$, based on cumulative memory
-load of all executing tasks, $\ell_m$, is given in Eq. \ref{eq:memeff}.
-The combined efficiency, $e = e_c e_m$, represents the amount of work
-accomplished on each executing task per unit of time.
-
+A more practical approach biasing model task requirements is to assume a bound,
+not on the magnitude of error, but on the fraction or percentage of error.  It
+may be possible, for example, through analysis of past executions of tasks and
+workflows, to estimate the maximum percentage of error for each model task
+requirement, $\hat{X}$, relative to the actual task requirement, $X$.  In other
+words it may be practical to estimate that each model task requirement is
+within $P\%$ of the actual task requirement.  Although that means $\hat{X}$
+may under- or overestimate $X$ by as much as $P\%$, in order to prevent
+underestimating we can adjust $\hat{X}$ as in Eq. \ref{eq:pbias}, hereafter
+referred to as the proportionate bias strategy.
 
 \begin{equation}
-\label{eq:cpueff}
-e_c = \begin{cases}
-	1, ~~~~~~~~\ell_c < 4 \\
-	(4/\ell_c), ~~\ell_c \ge 4
-\end{cases}
+\hat{X^b} \xleftarrow{p} \hat{X} / (1 - P\%)
+\label{eq:pbias}
 \end{equation}
+
+Although the proportionate bias strategy can effectively eliminate
+underestimated model task requirements with a judiciously chosen $P\%$
+which may require less knowledge about the nature of the error than choosing
+a proper magnitude for the constant bias strategy value, $C$, this relaxed
+requirement comes at a price.  Specifically, where the constant bias
+strategy increases the maximum overestimate of actual task requirement, $X$
+inherent in $\hat{X}$ by $C$, the proportionate bias strategy `stretches'
+the distribution of $\hat{X^b}$ and yields a much larger range of
+overestimates.  This is illustrated in Figure \ref{fig:cpbias} where the
+distribution of an example model value is adjusted according to the constant
+and proportionate bias strategies.  For both adjustments, an ideal value of
+$C$ and $P$ are shown, though practically an ideal value wouldn't be known
+and have to be estimated itself.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{figures/BiasVisualization_Constant.pdf}
+		\includegraphics[width=0.5\textwidth]{figures/BiasVisualization_Proportionate.pdf}
+	\end{center}
+	\caption{Illustration of probabilities for a model task requirement
+		with bound error as a percentage, $P$, of the actual task
+		requirement, $X$, and the effect of constant and proportionate
+		bias strategies transforming the distribution into
+		one that never underestimates the actual term, $X$, given an
+		ideal value for $C$ and $P$.  Distribution is assumed to be
+		zero-mean and triangular.}
+	\label{fig:cpbias}
+\end{figure}
+
+In order to achieve a less `stretched' distribution for the biased model task
+requirement than the proportionate bias strategy while still maintaining the
+need only for an estimated maximum percentage, not magnitude, of error, the
+third proposed strategy, known as the simple bias strategy, is given in Eq.
+\ref{eq:sbias}.  It fails to eliminate the possibility of underestimating
+though it does reduce its propability substantially, but also prevents wildly
+overestimating task requirements by decreasing the amount of `stretch' in the
+biased term's distribution.  Figure \ref{fig:sbias} illustrates the effect of
+the simple bias strategy on the distribution of the biased term.
 
 \begin{equation}
-\label{eq:memeff}
-e_m = \frac{10}{10 + \frac{1}{(1/\ell_m) - 1}}
+\hat{X^b} \xleftarrow{s} \hat{X} (1 + P\%)
+\label{eq:sbias}
 \end{equation}
 
-For all numeric results for
-performance the value presented is an averaged value across ten simulations
-where the workflows and tasks were the same but a unique random error term,
-$x$, was used for each model task's required CPU cycles.
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{figures/BiasVisualization_Simple.pdf}
+	\end{center}
+	\caption{Illustration of probabilities for a model task requirement
+		with bound error as a percentage, $P$, of the actual task
+		requirement, $X$, and the effect of the simple bias strategy
+		transforming the distribution, given an ideal value for $P$.
+		Distribution is assumed to be zero-mean and triangular.}
+	\label{fig:cpbias}
+\end{figure}
+
+\section{Results}
+\label{sec:Results}
+
+All results were collected using simulations performed using simulator software
+developed for previous research \cite{costmin} and \cite{pdpta18} and made
+publically available as open source \cite{soasim}.  Workflows and task
+requirements are the same as those in \cite{pdpta18} as are simulated error
+amounts which ranged from $0.1\%$ up to $90\%$ taken from a uniform
+distribution.  For all numeric results for performance the value presented is
+an averaged value across ten simulations where the workflows and tasks were
+identical but a error term applied to model tasks' requirements were unique.
 
 \begin{figure*}
 	\begin{center}
@@ -291,26 +329,29 @@ $x$, was used for each model task's required CPU cycles.
 	\caption{Histogram of workflows by normalized tardiness comparing
 		relative performance of scheduling algorithms with no error (vertical
 		bars) and with 0.1\% error applied to the model of the workflow
-		requirements (line graphs).  In this scenario, task completion event
-		feedback was \textbf{not} employed to correct the model platform.}
-	\label{fig:noloss-lowerror-nofeedback}
+		requirements (line graphs).  Complete feedback of task completion from
+		the actual platform was used, but model platform was, due to
+		underestimated task requirements, allowed to model tasks as completing
+		and subsequenting scheduling algorithms allowed to schedule additional
+		tasks to the machine.}
+	\label{fig:noloss-nobias-lowerror}
 \end{figure*}
 
+Figure \ref{fig:noloss-nobias-lowerror} shows the performance of the four
+scheduling algorithms and the significant performance impact that the smallest
+amount of error tested has even when complete feedback is available from the
+actual platform but the model platform is still allowed to model tasks as
+completing early due to underestimates of task requirements. In this figure
+as with prior research, performance is depicted visually as a histogram of the
+number of workflows completed in intervals based on their normalized tardiness
+(the time difference between the completion and the target deadline normalized
+by amount of time available to execute the workflow, i.e., the difference of
+deadline and arrival time of the workflow). In this representation a normalized
+tardiness of 0 represents a workflow that completed exactly at its deadline,
+negative values represent workflows completed before their deadline, and
+positive values those completed late.
 
-\section{Results}
-\label{sec:Results}
-
-Figure \ref{fig:noloss-lowerror-nofeedback} shows the performance of scheduling
-algorithms and the significant performance impact that even a small amount of
-error has.  In this figure as with prior research, performance is depicted
-visually as a histogram of the number of workflows completed in intervals based
-on their normalized tardiness (the time difference between the completion and
-the target deadline normalized by on-time completion time of the workflow).
-In this representation a normalized tardiness of 0 represents a workflow that
-completed exactly at its deadline, negative values represent workflows completed
-before their deadline, and positive values those completed late.
-
-The histogram bars of Figure \ref{fig:noloss-lowerror-nofeedback} represent the
+The histogram bars of Figure \ref{fig:noloss-nobias-lowerror} represent the
 performance of scheduling algorithms under the ideal circumstance of no error
 in the model (i.e., the model platform perfectly predicts and represents the
 resources required by a task and its execution completion time).  These
@@ -320,130 +361,35 @@ workflows ahead of their deadline.  The PLLF (proportional least laxity first)
 algorithm completes workflows up to 4 times later (as a proportion of the
 ideal finish time) than the deadline. The FCFS (first-come, first-serve)
 algorithm performs relatively poorly with workflows completing far later than
-their deadline because it is oblivious to deadlines and therefore often will
-put off scheduling tasks of a recently-arrived workflow with a `tight' deadline
-by prioritizing a less-recently arrived workflow despite its deadline being
-further into the future and possibly more relaxed.
+their deadline because the algorithm doesn't use deadline information in making
+its scheduling decisions.
 
-The lines graphed in Figure \ref{fig:noloss-lowerror-nofeedback} represent the
+The lines graphed in Figure \ref{fig:noloss-nobias-lowerror} represent the
 same algorithms' histogram of workflow completion in the presence of 0.1\% error
-in the model platform.  As depicted, one algorithm (CMSA algorithm optimizing
-the cost based on a Sigmoid cost function) maintains roughly the same
-performance in the presence of this small model error, as without it.  All three
-other algorithms exhibit a dramatic loss in performance, i.e., a shift of many
-workflows completing ahead of or shortly after their deadline to completing
-many times over later than their deadline.  In this scenario, completion events
-were \textbf{not} employed to correct the model platform.
+in the model platform.  Due even to this small amount of error, the problem of
+underestimating task requirements and overallocating resources, and the nature
+of this issue compounding results in all four scheduling algorithms exhibiting
+substantially worse performance.  This is illustrated by the reduction to less
+than half as many workflow completed before their deadlines (normalized
+tardinesses less than 0) compared to the no-error case.  It is also
+demonstrated by the large increase of number of workflows completed with a
+normalized tardiness of 10 or higher compared to the no-error case.
 
-\begin{table}
-       \begin{center}
-       \begin{tabular}{lllll}
-\textbf{Error, }$X$ & \textbf{CMSA}	& \textbf{CMSA}				& \textbf{FCFS}				& \textbf{PLLF} \\
-		& \textbf{(Quad)}			& \textbf{(Sig)}			&							& \\
-0.0		& \cellcolor{red! 6}16.54	& \cellcolor{green!9}1.77	& \cellcolor{red!28}38.49	& \cellcolor{red!28}38.72 \\
-0.001	& \cellcolor{red!20}30.52	& \cellcolor{green!9}1.92	& \cellcolor{red!51}61.39	& \cellcolor{red!40}50.96 \\
-0.005	& \cellcolor{red!24}34.75	& \cellcolor{green!9}1.84	& \cellcolor{red!49}59.48	& \cellcolor{red!42}52.39 \\
-0.01	& \cellcolor{red!20}30.86	& \cellcolor{green!7}2.99	& \cellcolor{red!50}60.35	& \cellcolor{red!39}49.39 \\
-0.05	& \cellcolor{red!18}28.87	& \cellcolor{green!1}8.99	& \cellcolor{red!53}63.60	& \cellcolor{red!39}49.54 \\
-0.1		& \cellcolor{red!22}32.11	& \cellcolor{red! 5}15.60	& \cellcolor{red!50}60.77	& \cellcolor{red!42}52.65 \\
-0.5		& \cellcolor{red!24}34.34	& \cellcolor{red!14}24.96	& \cellcolor{red!42}52.85	& \cellcolor{red!45}55.68 \\
-0.9		& \cellcolor{red!22}32.93	& \cellcolor{red!16}26.12	& \cellcolor{red!44}54.36	& \cellcolor{red!48}58.64 \\
-       \end{tabular}
-       \caption{Percent of workflows late for four scheduling algorithms
-			across various amounts of error in the model platform.  Completion
-			events were \textbf{not} employed to correct the model platform.}
-       \label{tab:perclate}
-       \end{center}
-\end{table}
+Therefore, with any level of partial feedback available it is unexpected that
+any of these scheduling algorithms would perform better than the case of
+complete feedback being available but still allowing modeling of early task
+completions due to underestimated task requirements.  However, the use of
+model task requirement biasing showed promising results at restoring
+performance of the algorithms by eliminating or reducing the likelihood of
+the underestimating problem.
 
-Table \ref{tab:perclate} lists the value of percent of all workflows completed
-late (after their deadline) as a single performance metric for the scheduling
-algorithms across various amounts of the error term, $X$.  This metric (percent
-late workflows) is useful in comparing the impact of increasing error on the
-performance of each scheduling algorithm.  Like Figure
-\ref{fig:noloss-lowerror-nofeedback}, it illustrates how CMSA (with sigmoid cost
-function) is robust to small error, whereas the other algorithms are not.  It
-also shows that while the performance of CMSA (Sig) degrades as error increases,
-the other three algorithms maintain nearly a constant level of even poorer
-performance with any amount of error.  These results show how some algorithms
-(CMSA with Sigmoid cost function) can be relatively robust (at least with
-respect to this performance metric) for small amounts of error but how all
-algorithms eventually perform poorly when using a model platform that fails to
-reasonably represent the actual system.
 
-The model task requirement with respect to the amount of CPU cycles each task
-requires has a compounding effect when the model system declares, erroneously,
-that a task has completed (ahead of the actual system) and thus the scheduler
-determine to begin execution of an additional task that increases the system
-resource load in the actual system and slows the progression toward completion
-even further.  Intuitively, this compounding error is most likely the reason
-for such a dramatic decrease in overall scheduler performance for the three
-affected algorithms of Figure \ref{fig:noloss-lowerror-nofeedback}.
-
-\begin{figure*}
-	\begin{center}
-		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_NoLoss_NoBias_HighErrorWithoutModelFinishEvents.pdf}
-	\end{center}
-	\caption{Histogram of workflows by normalized tardiness comparing relative
-		performance of scheduling algorithms with no error (vertical bars) and
-		with 90\% error applied to the model of the workflow requirements
-		(line graphs).  In this scenario, task completion event feedback
-		\textbf{was} employed to correct the model platform.}
-	\label{fig:noloss-higherror-nomodel}
-\end{figure*}
-
-The strategy proposed in this paper is to incorporate feedback from the actual
-platform for task completions as an event-based trigger for updating the
-model platform and allowing the scheduler to schedule new tasks.  Figure
-\ref{fig:noloss-higherror-nomodel} depicts results of the performance of
-scheduling algorithms comparable with Figure
-\ref{fig:noloss-lowerror-nofeedback} except that the error introduced in the
-model is much higher (90\%, instead of 0.1\%) and the model platform uses task
-completion events from the actual platform (instead of relying on the model
-platform estimates of task completions).  Given that the line graphs match
-much more closely to the vertical bars than in Figure
-\ref{fig:noloss-lowerror-nofeedback}, this illustrates how even for large
-model error the incorporation of actual platform task completion feedback
-increases the robustness of all four scheduling algorithms.  The CMSA (Sig)
-algorithm which was robust for small amounts of error, as well as the other
-three algorithms which were not robust even for the smallest amount of error
-studied (0.1\%) all achieve nearly the same level of performance (i.e. shape
-of histogram) as with having a perfect, no-error model.
 
 
 \section{Summary and Future Work}
 \label{sec:Summary}
 
-In this paper we introduced a framework for understanding and evaluating
-scheduling algorthms' performance and robustness with
-respect to error in tasks' resource requirements.  This framework
-incorporates a model of the actual system in which errors and uncertainties can
-be represented.  Through simulation studies we examined the performance of four
-scheduling algorithms and the impact of error in the model system upon their
-performance.  While the CMSA algorithm (using a sigmoid cost function) had some
-degree of robustness, i.e. it was able to achieve similar performance in the
-presence of very small error, all algorithms exhibited poor performance with
-even moderate amounts of error present in one dimension of the model workflows
-requirements (CPU cycles required for the tasks).
 
-We also introduced and simulated the notion of incorporating feedback from
-the actual system back into the model system.  Through simulation studies we
-showed how all algorithms can benefit from feedback of task completion events
-and thus become relatively robust to even substantial error in the model
-system.
-
-In the present paper, we assumed that tasks' completion events are detected
-and fed back in order to `correct' the model platform.  Under this
-assumption, the model completely relies on actual completion events being
-fed back.  Future work will consider the possibility in which partial feedback
-(of some) completion events are available and fed back to the model.  This
-`partial feedback' assumption may be more practical than the complete feedback
-used in this paper in situations where there would be significant overhead
-instrumenting the actual system so as to feed back each and every completion
-event.  In such cases, taking small samplings of completion events from the
-actual system would be more practical. Finally, future work will also
-investigate the effect of non-uniform error and/or error distributions without
-an expected value of $0$.
 
 \bibliography{paper}{}
 \bibliographystyle{unsrt}
