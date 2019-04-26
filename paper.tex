@@ -13,7 +13,7 @@
 \usepackage[table]{xcolor}
 \pagenumbering{gobble}
 
-\title{\bf A Model-Based Scheduling Framework for Enhancing Robustness}
+\title{\bf Enhancing Scheduling Robustness with Feedback and Biasing}
 
 %%%% Make sure the author names are boldface.
 \author{
@@ -141,6 +141,18 @@ executing.
 		\cite{pdpta18}.}
 	\label{fig:platform}
 \end{figure}
+
+Four scheduling algorithms were studied in this and previous work.  The first
+is First-Come, First-Served (FCFS) which prioritizes scheduling tasks from
+workflows which arrived earlier over tasks from workflows that arrived later.
+The second is Proportional-Least Laxity First which projects a finish time
+of a task's workflow based on the rate of completion of its tasks in the past
+and then prioritizes tasks from workflows projected to be completed most tardy
+proportional to the overall size of the workflow.  The final two are variants
+of the Cost-Minimization Scheduling Algorithm (CMSA) \cite{costmin} which
+projects a finish time of a task's workflow (as with PLLF) and uses a cost
+function to assign as cost to the projected tardiness.  CMSA is used with two
+cost functions: a quadratic cost function and sigmoid cost function.
 
 All four studied scheduling algorithms were shown to be sensitive to
 even small amounts of error in modeled tasks.  Each scheduling algorithm
@@ -307,7 +319,7 @@ the simple bias strategy on the distribution of the biased term.
 		requirement, $X$, and the effect of the simple bias strategy
 		transforming the distribution, given an ideal value for $P$.
 		Distribution is assumed to be zero-mean and triangular.}
-	\label{fig:cpbias}
+	\label{fig:sbias}
 \end{figure}
 
 \section{Results}
@@ -317,14 +329,14 @@ All results were collected using simulations performed using simulator software
 developed for previous research \cite{costmin} and \cite{pdpta18} and made
 publically available as open source \cite{soasim}.  Workflows and task
 requirements are the same as those in \cite{pdpta18} as are simulated error
-amounts which ranged from $0.1\%$ up to $90\%$ taken from a uniform
+amounts which ranged from $0.1\%$ up to $50\%$ taken from a uniform
 distribution.  For all numeric results for performance the value presented is
 an averaged value across ten simulations where the workflows and tasks were
 identical but a error term applied to model tasks' requirements were unique.
 
 \begin{figure*}
 	\begin{center}
-		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_NoLoss_NoBias_LowError.pdf}
+		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_NoLoss_NoBias_LowAllError.pdf}
 	\end{center}
 	\caption{Histogram of workflows by normalized tardiness comparing
 		relative performance of scheduling algorithms with no error (vertical
@@ -383,13 +395,116 @@ model task requirement biasing showed promising results at restoring
 performance of the algorithms by eliminating or reducing the likelihood of
 the underestimating problem.
 
+Figure \ref{fig:nofeedback-cbias-higherror} depicts the effect of the constant
+bias strategy in the present of the highest ($50\%$) error tested with no
+feedback (the lines of the graph) against the no-error ideal case (the bars
+of the graph).  Key results are that for constant bias strategy is of no
+help to the FCFS algorithm which completes the majority of workflows with a
+normalized tardiness of $10$ or above.  For the PLLF algorithm, nearly as
+many workflows are no longer completed on time as for FCFS but the maximum
+normalized tardiness of workflows remains bounded at about $4$.  Both
+variants of CMSA seem to similarly complete fewer overall workflows on time
+through for the Quadratic cost function variant those workflows seem to be
+completed mostly at $0.5$ normalized tardiness and below while for the
+Sigmoid cost function variant they are spread from normalized tardinesses
+under $0.25$ up to $10+$. Although not depicted, for smaller bounded errors,
+the constant bias strategy does expectedly better, achieving results nearly
+as good as the no-error ideal case for errors up to about $5\%$.
 
+\begin{figure*}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_CompleteHighAllUniformError_WithCBias.pdf}
+	\end{center}
+	\caption{Histogram of workflows by normalized tardiness comparing
+		relative performance of scheduling algorithms in ideal case with no
+		error (vertical bars) and with 50\% error applied to the model of the
+		workflow requirements (line graphs) given no feedback of task
+		completion times and using the constant bias strategy with ideal
+		constant to prevent underestimating task requirements in even the
+		worst instance of error.}
+	\label{fig:nofeedback-cbias-higherror}
+\end{figure*}
 
+Neither the proportionate nor simple bias strategies achieve acceptible
+results with errors as high as $50\%$.  In Figures
+\ref{fig:nofeedback-pbias-mederror} and \ref{fig:nofeedback-sbias-mederror}
+the effect of proportionate and simple bias strategies are shown, respectively,
+in the case of $5\%$ error with no feedback and ideal bias value $P=5\%$.
+In the case of Figure \ref{fig:nofeedback-pbias-mederror} and proportionate
+bias strategy all four scheduling algorithms complete about one third fewer
+workflows at a normalized tardiness of $-0.25$ and below although most of those
+workflows are instead completed at normalized tardiness up to $0$, so they are
+still completed before their deadline.  CMSA with both cost functions completes
+a few more workflows mildly late (normalized tardiness $0.25$ and below), PLLF
+completes more workflows at normalized tardinesses up to $1$, and FCFS a few
+more at $4+$.  Overall, the proportionate bias strategy fairly effectively
+makes all scheduling algorithms robust to errors up to $5\%$ even without any
+actual platform feedback available.
+
+The simple bias strategy achieves an even better result than the proportionate
+bias strategy for the $5\%$ bounded error case, showing fewer workflows
+shifting from being completed early to completed late.  In fact, the CMSA with
+Sigmoid cost function appears to achieve nearly identical results despite no
+feedback and up to $5\%$ error when using the simple bias strategy.  It
+therefore appears that the small chance for simple bias strategy to still
+underestimate task requirements is a better tradeoff than the exagerrated
+overestimates produced by the proportionate bias strategy.
+
+\begin{figure*}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_CompleteMediumAllUniformError_WithRBias.pdf}
+	\end{center}
+	\caption{Histogram of workflows by normalized tardiness comparing
+		relative performance of scheduling algorithms in ideal case with no
+		error (vertical bars) and with 5\% error applied to the model of the
+		workflow requirements (line graphs) given no feedback of task
+		completion times and using the proportionate bias strategy with ideal
+		$P=5\%$ to prevent underestimating task requirements in even the
+		worst instance of error.}
+	\label{fig:nofeedback-pbias-mederror}
+\end{figure*}
+
+\begin{figure*}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_CompleteMediumAllUniformError_WithBias.pdf}
+	\end{center}
+	\caption{Histogram of workflows by normalized tardiness comparing
+		relative performance of scheduling algorithms in ideal case with no
+		error (vertical bars) and with 5\% error applied to the model of the
+		workflow requirements (line graphs) given no feedback of task
+		completion times and using the simple bias strategy with ideal
+		$P=5\%$ to nearly prevent underestimating task requirements in even the
+		worst instance of error.}
+	\label{fig:nofeedback-sbias-mederror}
+\end{figure*}
 
 \section{Summary and Future Work}
 \label{sec:Summary}
 
+In this paper we presented the case for why complete and reliable feedback
+of scheduled task completions from an actual platform to the model used for
+scheduling decision-making was found to be necessary to achieve robust
+performance of scheduling algorithms in previous work \cite{pdpta18}.
+Furthermore we have demonstrated the use of partial feedback as insufficient
+at achieving that robustness, but have proposed the use of biasing the model
+parameters to prevent or reduce the likelihood of the model underestimating
+task requirements thereby modeling tasks as completing earlier than their
+actual completion.
 
+Three biasing strategies were proposed, each with different assumptions of
+what knowledge is available about the error inherent in the model and
+different tradeoffs of balancing the amout of overestimation vs. likelihood
+of underestimation of task requirements.  Through simulated case studies we
+demonstrated that each biasing strategy is useful for achieving robustness
+of scheduling algorithm performance at different amount of model error.
+
+Future work that remains includes analysis of whether the combination of
+partial feedback with any of the biasing strategies can achieve greater
+robustness.  Additionally, other biasing strategies or alternatives to
+biasing will be explored to increase robustness or address cases where
+the amount of error in the model is unknown.  Finally, the use of more
+sophisticated approaches such as machine learning may be applied to either
+supplement or replace feedback information from the actual platform.
 
 \bibliography{paper}{}
 \bibliographystyle{unsrt}
