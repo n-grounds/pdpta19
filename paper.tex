@@ -13,7 +13,8 @@
 \usepackage[table]{xcolor}
 \pagenumbering{gobble}
 
-\title{\bf Enhancing Scheduling Robustness with Feedback and Biasing}
+\title{\bf Enhancing Scheduling Robustness with Task Completion Feedback and
+Resource Requirement Biasing}
 
 %%%% Make sure the author names are boldface.
 \author{
@@ -26,12 +27,11 @@ School of Computer Science, University of Oklahoma, Norman, Oklahoma, United Sta
 \maketitle                        %%%% To set Title and Author names.
 
 \begin{abstract}
-In previous work the performance of scheduling algorithms for dynamic
-scheduling of tasks in a distributed system were evaluated for their
-robustness to error in the model of tasks' information.  There it was
-found that incorporating task completion timings from the actual distributed
+Performance and robustness of dynamic scheduling algorithms are evaluated in
+the presence of errors in the tasks' resource requirements.  Previous work
+found that incorporating task completion events from the actual distributed
 system into the algorithms' model of the system was crucial for achieving
-robustness.  In this paper, various degrees of feedback, rather than simply
+robustness.  In the present, various degrees of feedback, rather than simply
 all-or-none, are evaluated using the same simulated studies as in previous
 work and a proposed strategy for biasing model tasks' information is proposed
 in order to counteract the most egregious effects of model error on
@@ -68,70 +68,76 @@ about the tasks which are ready for scheduling and their resource requirements
 such as CPU and memory load as well as the resource capacities of the machines
 in the distributed system.
 
-Such algorithms for dynamic scheduling may be based on heuristics for selecting
-which tasks to prioritize execution of and determining when to begin their
-execution and on which machine. Other algorithms may actively attempt to
-optimize scheduling decisions with respect to a desired outcome based on a
-user-defined objective.  Both types of algorithms are generally measured
-and compared to one another against such objectives such as minimizing makespan
-(time required for completed execution of all tasks) \cite{stochastic}, or, as
-in this paper, the degree to which all tasks of a DAG are completed by a
-DAG-associated deadline.
+Another dimension in the taxonomy of scheduling algorithms deals with whether
+tasks are executed `one at a time' on the machine to which they are assigned.
+In the present work, multiple tasks may be executed concurrently on a single
+machine.
+
+Algorithms for dynamic scheduling may be based on heuristics for selecting
+which tasks to prioritize and determining when to begin their execution and on
+which machine. Other algorithms attempt to optimize scheduling decisions with
+respect to a desired outcome based on a user-defined objective.  Both types of
+algorithms are generally measured and compared to one another against such
+objectives such as minimizing makespan (time required for completed execution
+of all tasks) \cite{stochastic}, or, as in this paper, the degree to which all
+tasks of a DAG are completed by a DAG-associated deadline.
 
 Scheduling algorithms may orthogonally be evaluated based on their robustness,
 for example, how well the same objective is achieved when information provided
-to the scheduling algorithm contains errors such as inaccuracies in the
-amount of resource requirements of the tasks.  In previous work \cite{pdpta18}
-four dynamic scheduling algorithms' robustness to error with respect to
-performance against an objective of completing DAGs before their deadline was
-presented, showing how some algorithms were not robust to even the smallest
-amount of simulated error.  Additionally, the use of task completion time
-feedback from the actual distributed system back into the modeled system used
-by the scheduling algorithms was found to substantially improve robustness of
-all four scheduling algorithms to even large amounts of simulated error.
+to the scheduling algorithm contains errors such as inaccuracies in resource
+requirements of the tasks.  In previous work \cite{pdpta18} four dynamic
+scheduling algorithms' robustness to error with respect to performance against
+an objective of completing DAGs before their deadline was presented, showing
+how some algorithms were not robust to even the smallest amount of error. The
+use of task completion event feedback from the actual distributed system back
+into the modeled system used by the scheduling algorithms was found to
+substantially improve robustness of all four scheduling algorithms even with
+large amounts of error.
 
 The remainder of the paper is organized in the following manner.  Section
 \ref{sec:Framework} describes the problem domain and the simulation software's
-use of modeling the distributed system where errors in task requirements may
-be inherent.  Section \ref{sec:Biasing} presents an approach to counteracting
-model error to prevent scheduling algorithms from over-committing system
-resources to executing too many tasks concurrently. Section \ref{sec:Results}
-presents results of simulated case studies within that software simulator.
+use of modeling the distributed system in which errors in task requirements may
+be present.  Section \ref{sec:Biasing} presents a requirements biasing approach
+to counteracting model error to prevent scheduling algorithms from
+over-committing system resources to executing too many tasks concurrently.
+Section \ref{sec:Results} presents results of simulated case studies.
 Finally, Section \ref{sec:Summary} summarizes the findings from these
 simulations and presents the conclusions of our work.
 
 
-\section{Problem Domain and Simulation Environment}
+\section{Problem Domain and \\
+Simulation Environment}
 \label{sec:Framework}
 
 The present work is an extension to previous work \cite{pdpta18} in which a
 model-based approach to dynamically scheduling tasks from DAGs (called
 workflows) was introduced.  Four scheduling algorithms were tested in a
-simulation environment \cite{soasim} given the same 24-hour simulated period
+simulation environment \cite{soasim} given a 24-hour simulated period
 of arriving workflows ranging in size from 5 tasks up to 800.  Each workflow
-had a known, predetermined deadline and scheduling algorithms were evaluated
-based both on the number of workflows completed before their deadline and the
-distribution of workflow counts completed at various normalized proportions
-past their deadline (e.g., workflows up to 100\% late relative to the amount
-of time between their arrival and deadline).
+has a known, predetermined deadline and scheduling algorithms were evaluated
+in \cite{pdpta18} based both on the number of workflows completed before their
+deadline and the distribution of workflow counts completed at various
+normalized proportions past their deadline (e.g., workflows up to 100\% late
+relative to the amount of time between their arrival and deadline).
 
-Scheduling algorithms are used to determine from a given queue of tasks
+Scheduling algorithms are used to determine \textemdash from a given queue of tasks
 ready to begin executing (i.e. tasks of arrived workflows that have no
-precedence constraints or whose precedent tasks have all completed) both
-when the task should begin executing and on which machine of the platform.
-Unlike some scheduling research, tasks are permitted to executing concurrently
-with other tasks on the same machine which increases machines' overall load
-on resources such as CPU and memory and thereby slows the rate of work on each
-executing task.  Original work in \cite{pdpta09} details this non-linear
-degradation of rate of work (efficiency) due to concurrent task execution.
+precedence constraints or whose precedent tasks have all completed)
+\textemdash both when the task should begin executing and on which machine of
+the platform. Unlike some scheduling research, tasks are permitted to executed
+concurrently with other tasks on the same machine, which increases machines'
+overall load on resources such as CPU and memory and thereby slows the rate of
+work on each executing task.  Original work in \cite{pdpta09} details this
+non-linear degradation of rate of work (efficiency) due to concurrent task
+execution.
 
 Figure \ref{fig:platform} illustrates the various components and general
 flow of information within the model-based approach to executing and evaluating
-scheduling algorithms.  Whereas the modeled tasks' requirements (CPU load,
+scheduling algorithms.  The modeled tasks' requirements (CPU load,
 required number of CPU cycles, and memory load) may contain errors relative to
-the true values of those tasks, the model platform may diverge from the
-actual platform in terms of which tasks are completed and which are still
-executing.
+the true values of those tasks; these errors then cause the model platform to
+diverge from the actual platform in terms of which tasks are completed and
+which are still executing.
 
 \begin{figure}
 	\begin{center}
@@ -142,37 +148,39 @@ executing.
 	\label{fig:platform}
 \end{figure}
 
-Four scheduling algorithms were studied in this and previous work.  The first
+Four scheduling algorithms were studied in this and previous work. The first
 is First-Come, First-Served (FCFS) which prioritizes scheduling tasks from
-workflows which arrived earlier over tasks from workflows that arrived later.
+workflows that arrived earlier over tasks from workflows that arrived later.
 The second is Proportional-Least Laxity First which projects a finish time
-of a task's workflow based on the rate of completion of its tasks in the past
-and then prioritizes tasks from workflows projected to be completed most tardy
-proportional to the overall size of the workflow.  The final two are variants
-of the Cost-Minimization Scheduling Algorithm (CMSA) \cite{costmin} which
-projects a finish time of a task's workflow (as with PLLF) and uses a cost
-function to assign as cost to the projected tardiness.  CMSA is used with two
-cost functions: a quadratic cost function and sigmoid cost function.
+of a task's overarching workflow based on the rate of completion of its tasks
+in the past and then prioritizes tasks from workflows projected to be
+completed most tardy proportional to the overall size of the workflow. The
+final two algorithms are variants of the Cost-Minimization Scheduling Algorithm
+(CMSA) \cite{costmin}, which projects a finish time of a task's workflow (as
+with PLLF) and uses a cost function to assign a cost to the projected
+tardiness. CMSA is used with two cost functions: a quadratic cost function and
+sigmoid cost function.
 
 All four studied scheduling algorithms were shown to be sensitive to
-even small amounts of error in modeled tasks.  Each scheduling algorithm
-exhibited a decreased percent of workflow completed ahead of their deadline
-with the smallest amount of error studied.  For three of the scheduling
-algorithms the decrease was substantial, but relatively equal, regardless of
-the amount of error.  For the fourth scheduling algorithm, the decrease was
-less severe overall and was propotionate to the amount of error.  The
-fourth algorithm was thus declared to be somewhat robust to small amounts of
-error (less than 0.5\%) but ultimately, like all three others, was not
+even small amounts of error in modeled tasks \cite{pdpta18}.  Each scheduling
+algorithm exhibited a decreased percent of workflow completed ahead of their
+deadline with the smallest amount of error studied.  For three of the
+scheduling algorithms the decrease was substantial, but relatively equal,
+regardless of the amount of error.  For the fourth scheduling algorithm, the
+decrease was less severe overall and was propotionate to the amount of error.
+The fourth algorithm was thus declared to be somewhat robust to small amounts
+of error (less than 0.5\%) but ultimately, like all three others, was not
 robust for errors of 1\% or greater.
 
 The main result of \cite{pdpta18} showed that incorporating feedback of
-task completions from the actual platform to the model platform thereby
+task completions from the actual platform to the model platform (thereby
 preventing the model platform from modeling a task completing before the
-actual task completed dramatically increased robustness of all scheduling
-algorithms for even errors up to 90\% (the highest amount studied).  Figure
-\ref{fig:underestimating} illustrates why the model platform underestimating
-the requirements of a task and thereby modeling it as completed ahead of the
-actual task can be so detrimental.
+actual task completed) dramatically increased robustness of all scheduling
+algorithms, even for errors up to 90\% (the highest amount studied) in the
+modeled tasks' requirement for amount of work in CPU cycles.  Figure
+\ref{fig:underestimating} illustrates why the model platform's underestimation
+of the requirements of a task (and thereby modeling it as completed ahead of
+the actual task) can be so detrimental.
 
 \begin{figure}
 	\begin{center}
@@ -195,26 +203,26 @@ $t_1$ finishes and $t_2$ is scheduled to begin, the actual platform is not
 yet finished with $t_1$ and thus must work concurrently on $t_1$ and $t_2$
 for some time until the actual $t_1$ task does complete.  This causes both
 $t_1$ and $t_2$ to have actual completion times later than the modeled
-completion times because of the unintentionally-overallocated resources of
+completion times because of the unintentional over allocation of resources of
 the machine executing the tasks.  By extension, if another task, say $t_3$,
 were to be scheduled to begin after $t_2$ finishes this problem could compound
-because $t_2$'s actual completion would delayed by concurrent execution with
-$t_1$ and further delayed by concurrent execution with $t_3$.
+because $t_2$'s actual completion would be further delayed by the additional
+concurrent execution with $t_3$.
 
-The previous example illustrates why allowing the model to platform to
+The previous example illustrates why allowing the model platform to
 inform scheduling algorithms when tasks are complete and machines are
-idle (or less loaded) in the presense of error which may underestimate tasks'
-true requirements can be so detrimental.  With feedback of every task's
-completion from the actual platform the modeled completion times of tasks
+idle (or less loaded) in the presense of error (which may underestimate tasks'
+true requirements) can be so detrimental.  With feedback of every task's
+completion from the actual platform, the modeled completion times of tasks
 may be safely ignored.  However, complete feedback of all tasks' completion
 may be impractical in a live system, or may simply be cost-prohibitive.
 This paper thus seeks to address the question of whether partial feedback
 of tasks' completion times may be sufficient to achieve some level of
-robustness to model error.  In addition, based specifically on the
-knowledge of the underestimating problem illustrated prior, in Section
-\ref{sec:Biasing} that follows a specific approach to counteracting
-that problem by biasing model task requirements is proposed.  Results of
-both partial feedback and biasing are presented in Section \ref{sec:Results}.
+robustness to model error.  In addition, based specifically on the knowledge
+of the underestimating problem illustrated prior, Section \ref{sec:Biasing}
+proposes a specific approach to counteracting that problem by biasing model
+task requirements.  Results of both partial feedback and biasing are presented
+in Section \ref{sec:Results}.
 
 
 \section{Biasing Model Requirements}
@@ -224,39 +232,37 @@ As illustrated in Figure \ref{fig:underestimating}, if the model task
 requirements are an underestimate of the actual task's requirements then
 scheduling algorithms may schedule future tasks to begin executing
 unintentionally-concurrent with other tasks, delaying their completion.
-However, if the model is known to have error which may underestimate
-task requirements, then the model task requirements could simply be
-biased by increasing its value in order to reduce (or ideally, eliminate)
-the probability that it underestimates the actual task requirements.
-In this section three proposed strategies for biasing model task
-requirements are proposed.
+However, if the model is known to have error which may underestimate task
+requirements, then the model task requirements could simply be biased by
+increasing its assumed (provided) value in order to reduce (or ideally,
+eliminate) the probability that it underestimates the actual task requirements.
+In this section three proposed strategies for biasing model task requirements
+are proposed.
 
-The simplest form of biasing would be to add a constant value to each
-task requirement.  If the maximum magnitude of error for which a model
+The simplest form of biasing is to add a constant value to each task
+requirement.  If the maximum magnitude of error for which a model
 task requirement may underestimate the actual task requirement is known,
 then that value would be the ideal bias constant value because it would
-eliminate the model from ever underestimating task requirements but
-bound the worst overestimate to the smallest amount possible for such a
-constant value biasing strategy.  Practically, the maximum error magnitude
-is unlikely to be known, though because it is the most ideal circumstance
-for biasing it is included here and in simulated results of Section
-\ref{sec:Results}.  The equation for a simple constant bias value, $C$,
-addition to each model task requirement, $\hat{X}$, to yield a biased
-model task requirement, $\hat{X^b}$, is given in Eq.
-\ref{eq:cbias}.
+eliminate the model from ever underestimating task requirements while
+minimizing the amount of overestimation. Practically, the maximum error
+magnitude is unlikely to be known. However, because it is the most ideal
+circumstance for biasing it is included here and in simulated results of
+Section \ref{sec:Results}. The equation for a simple constant bias value, $C$,
+addition to each model task requirement, $\hat{X}$, to yield a biased model
+task requirement, $\hat{X^b}$, is given in Eq. \ref{eq:cbias}.
 
 \begin{equation}
 \hat{X^b} \xleftarrow{c} \hat{X} + C
 \label{eq:cbias}
 \end{equation}
 
-A more practical approach biasing model task requirements is to assume a bound,
-not on the magnitude of error, but on the fraction or percentage of error.  It
-may be possible, for example, through analysis of past executions of tasks and
-workflows, to estimate the maximum percentage of error for each model task
-requirement, $\hat{X}$, relative to the actual task requirement, $X$.  In other
-words it may be practical to estimate that each model task requirement is
-within $P\%$ of the actual task requirement.  Although that means $\hat{X}$
+A more realistic approach to biasing model task requirements is to assume a
+bound, not on the magnitude of error, but on the fraction or percentage of
+error. It may be possible, for example, through analysis of past executions of
+tasks and workflows, to estimate the maximum percentage of error for each model
+task requirement, $\hat{X}$, relative to the actual task requirement, $X$. In
+other words it may be practical to estimate that each model task requirement is
+within $P\%$ of the actual task requirement.  Although that implies $\hat{X}$
 may under- or overestimate $X$ by as much as $P\%$, in order to prevent
 underestimating we can adjust $\hat{X}$ as in Eq. \ref{eq:pbias}, hereafter
 referred to as the proportionate bias strategy.
@@ -270,15 +276,14 @@ Although the proportionate bias strategy can effectively eliminate
 underestimated model task requirements with a judiciously chosen $P\%$
 which may require less knowledge about the nature of the error than choosing
 a proper magnitude for the constant bias strategy value, $C$, this relaxed
-requirement comes at a price.  Specifically, where the constant bias
-strategy increases the maximum overestimate of actual task requirement, $X$
-inherent in $\hat{X}$ by $C$, the proportionate bias strategy `stretches'
-the distribution of $\hat{X^b}$ and yields a much larger range of
-overestimates.  This is illustrated in Figure \ref{fig:cpbias} where the
-distribution of an example model value is adjusted according to the constant
-and proportionate bias strategies.  For both adjustments, an ideal value of
-$C$ and $P$ are shown, though practically an ideal value wouldn't be known
-and have to be estimated itself.
+requirement comes at a price. Specifically, where the constant bias
+strategy shifts the actual task requirement by $C$, the proportionate bias
+strategy `stretches' the distribution of $\hat{X^b}$ and yields a much larger
+range of overestimates. This is illustrated in Figure \ref{fig:cpbias} where
+the distribution of an example model value is adjusted according to the
+constant and proportionate bias strategies.  For both adjustments, an ideal
+value of $C$ and $P$ are shown, though practically an ideal value wouldn't be
+known and have to be estimated itself.
 
 \begin{figure}
 	\begin{center}
@@ -290,8 +295,9 @@ and have to be estimated itself.
 		requirement, $X$, and the effect of constant and proportionate
 		bias strategies transforming the distribution into
 		one that never underestimates the actual term, $X$, given an
-		ideal value for $C$ and $P$.  Distribution is assumed to be
-		zero-mean and triangular.}
+		ideal value for $C$ and using the exact value of $P$ (the bounded
+		error) in the proportionate bias strategy's Eq. \ref{eq:pbias}.
+		Distribution is assumed to be zero-mean and triangular.}
 	\label{fig:cpbias}
 \end{figure}
 
@@ -299,11 +305,12 @@ In order to achieve a less `stretched' distribution for the biased model task
 requirement than the proportionate bias strategy while still maintaining the
 need only for an estimated maximum percentage, not magnitude, of error, the
 third proposed strategy, known as the simple bias strategy, is given in Eq.
-\ref{eq:sbias}.  It fails to eliminate the possibility of underestimating
-though it does reduce its propability substantially, but also prevents wildly
-overestimating task requirements by decreasing the amount of `stretch' in the
-biased term's distribution.  Figure \ref{fig:sbias} illustrates the effect of
-the simple bias strategy on the distribution of the biased term.
+\ref{eq:sbias}. This third strategy fails to eliminate the possibility of
+underestimating though it does reduce its propability substantially, but also
+prevents wildly overestimating task requirements by decreasing the amount of
+`stretch' in the biased term's distribution.  Figure \ref{fig:sbias}
+illustrates the effect of the simple bias strategy on the distribution of the
+biased term.
 
 \begin{equation}
 \hat{X^b} \xleftarrow{s} \hat{X} (1 + P\%)
@@ -481,22 +488,21 @@ overestimates produced by the proportionate bias strategy.
 \section{Summary and Future Work}
 \label{sec:Summary}
 
-In this paper we presented the case for why complete and reliable feedback
-of scheduled task completions from an actual platform to the model used for
-scheduling decision-making was found to be necessary to achieve robust
-performance of scheduling algorithms in previous work \cite{pdpta18}.
-Furthermore we have demonstrated the use of partial feedback as insufficient
-at achieving that robustness, but have proposed the use of biasing the model
-parameters to prevent or reduce the likelihood of the model underestimating
-task requirements thereby modeling tasks as completing earlier than their
-actual completion.
-
-Three biasing strategies were proposed, each with different assumptions of
-what knowledge is available about the error inherent in the model and
-different tradeoffs of balancing the amout of overestimation vs. likelihood
-of underestimation of task requirements.  Through simulated case studies we
-demonstrated that each biasing strategy is useful for achieving robustness
-of scheduling algorithm performance at different amount of model error.
+The case for why complete and reliable feedback of scheduled task completions
+from an actual platform to the model used for scheduling decision-making was
+found to be necessary to achieve robust performance of scheduling algorithms,
+as first described in previous work \cite{pdpta18}. Furthermore we have
+demonstrated the use of partial feedback to be insufficient at achieving
+similar robustness, but have proposed the use of biasing the model parameters
+to prevent or reduce the likelihood of the model underestimating task
+requirements thereby modeling tasks as completing earlier than their actual
+completion. Three biasing strategies were proposed, each with different
+assumptions of what knowledge is available about the error inherent in the
+model and different tradeoffs of balancing the amout of overestimation vs.
+likelihood of underestimation of task requirements.  Through simulated case
+studies we demonstrated that each biasing strategy is useful for achieving
+robustness of scheduling algorithm performance at different amount of model
+error.
 
 Future work that remains includes analysis of whether the combination of
 partial feedback with any of the biasing strategies can achieve greater
