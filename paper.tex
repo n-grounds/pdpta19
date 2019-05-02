@@ -437,11 +437,10 @@ results with errors as high as $50\%$.  In Figures
 \ref{fig:nofeedback-pbias-mederror} and \ref{fig:nofeedback-sbias-mederror}
 the effect of proportionate and simple bias strategies are shown, respectively,
 in the case of $5\%$ error with no feedback and ideal bias value $P=5\%$.
-In the case of Figure \ref{fig:nofeedback-pbias-mederror} and proportionate
-bias strategy all four scheduling algorithms complete about one third fewer
-workflows at a normalized tardiness of $-0.25$ and below although most of those
-workflows are instead completed at normalized tardiness up to $0$, so they are
-still completed before their deadline.  CMSA with both cost functions completes
+For the proportionate bias strategy, all four scheduling algorithms complete
+about one third fewer workflows at a normalized tardiness of $-0.25$ and below
+although most of those workflows are completed at normalized tardiness up to
+$0$, which is still before their deadline.  CMSA with both cost functions completes
 a few more workflows mildly late (normalized tardiness $0.25$ and below), PLLF
 completes more workflows at normalized tardinesses up to $1$, and FCFS a few
 more at $4+$.  Overall, the proportionate bias strategy fairly effectively
@@ -496,24 +495,20 @@ demonstrated the use of partial feedback to be insufficient at achieving
 similar robustness, but have proposed the use of biasing the model parameters
 to prevent or reduce the likelihood of the model underestimating task
 requirements thereby modeling tasks as completing earlier than their actual
-completion. Three biasing strategies were proposed, each with different
-assumptions of what knowledge is available about the error inherent in the
-model and different tradeoffs of balancing the amout of overestimation vs.
-likelihood of underestimation of task requirements.  Through simulated case
-studies we demonstrated that each biasing strategy is useful for achieving
-robustness of scheduling algorithm performance at different amount of model
-error.
+completion. Three biasing strategies were proposed with unique trade-offs
+of assumed knowledge about error bounds and degree to which they decrease
+underestimation and increase overestimation of task requirements. Through
+simulated case studies we demonstrated that each biasing strategy is useful
+for achieving robustness of scheduling algorithm performance at different
+amounts of model error.
 
-Future work that remains includes analysis of whether the combination of
-partial feedback with any of the biasing strategies can achieve greater
-robustness.  Additionally, other biasing strategies or alternatives to
+Future work may include combination of partial feedback with biasing
+strategies.  Additionally, other biasing strategies or alternatives to
 biasing will be explored to increase robustness or address cases where
-the amount of error in the model is unknown.  Finally, the use of more
-sophisticated approaches such as machine learning may be applied to either
-supplement or replace feedback information from the actual platform.
+the amount of error in the model is unknown.
 
+\bibliographystyle{IEEEtran}
 \bibliography{paper}{}
-\bibliographystyle{unsrt}
 
 \end{document}
 
