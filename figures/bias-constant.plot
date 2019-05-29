@@ -1,7 +1,7 @@
 set terminal pdf
 set output 'BiasVisualization_Constant.pdf'
 
-set title "Effect of Constant Bias Strategy ({/Times-Italic X+C})\n{/*0.8 {/Times-Italic x} from triangle distribution {/Times-Italic [X-PX,X+PX]}, {/Times-Italic P=50%}, {/Times-Italic C=PX}}"
+set title "{/*1.2 Effect of Constant Bias Strategy ({/Times-Italic X+C})}\n{/Times-Italic x} from triangle distribution {/Times-Italic [X-PX,X+PX]}, {/Times-Italic P=50%}, {/Times-Italic C=PX}"
 set xlabel ''
 set xtics nomirror out rotate by -40 ("{/Times-Italic X-PX}" 0.5, "{/Times-Italic X}" 1, "{/Times-Italic X+PX}" 1.5, "{/Times-Italic X+2PX}" 2)
 set ylabel 'Probability'

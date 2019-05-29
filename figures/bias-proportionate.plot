@@ -1,7 +1,7 @@
 set terminal pdf
 set output 'BiasVisualization_Proportionate.pdf'
 
-set title "Effect of Proportionate Bias Strategy ({/Times-Italic X/(1-P)})\n{/*0.8 {/Times-Italic x} from triangle distribution {/Times-Italic [X-PX,X+PX]}, {/Times-Italic P=50%}}"
+set title "{/*1.2 Effect of Proportionate Bias Strategy ({/Times-Italic X/(1-P)})}\n{/Times-Italic x} from triangle distribution {/Times-Italic [X-PX,X+PX]}, {/Times-Italic P=50%}"
 set xlabel ''
 set xtics nomirror out rotate by -30 ("{/Times-Italic X-PX}" 0.5, "{/Times-Italic X}" 1, "{/Times-Italic X+PX}" 1.5, "{/Times-Italic (X+PX)/(1-PX)}" 3)
 set ylabel 'Probability'
