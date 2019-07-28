@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>PDPTA'19</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="reveal.js/css/reveal.css"/>
+		<link rel="stylesheet" href="reveal.js/css/theme/white.css"/>
+		<script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi )
+				? 'reveal.js/css/print/pdf.css'
+				: 'reveal.js/css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>Enhancing Scheduling Robustness with Task Completion
+						Feedback and Resource Requirement Biasing</h2>
+				</section>
+				<section>
+					<h2>Overview</h2>
+					<ul>
+						<li>Problem Introduction &amp; Past Research Summary</li>
+						<li>Feedback and Biasing Concepts</li>
+						<li>Simulation Results Overview &amp; Conclusions</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<div style="float: left">
+						<img src="WFG.png" />
+					</div>
+					<p>Scheduling Workflow Tasks in Cluster of Multi-core,
+					Memory-Managed Machines (2009) [1]</p>
+					<p>Tasks are Individually-Schedulable Units of a Workflow</p>
+					<p>Workflows are a Precedence-Oriented DAG of Tasks
+					Representing a "Job" Submitted to the System by a User
+					along with Deadline</p>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<div style="float: left; width: 45%">
+						<img src="CPUEfficiency.png" />
+					</div>
+					<div style="float: left; width: 55%">
+						<p>Tasks defined as utilization of two resources provided
+						by a Machine:</p>
+						<ol>
+							<li>CPU Utilization</li>
+						</ol>
+						<p>Efficiency (Productivity) of a Machine based on
+							cumulative tasks' CPU utilization, C, and Machine
+							CPU core count (4)<br />
+							$e_c ={max\{1, {4 \over C}\}}$</p>
+					</div>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<div style="float: left; width: 45%">
+						<img src="MemoryEfficiency.png" />
+					</div>
+					<div style="float: left; width: 55%">
+						<p>Tasks' second resource utilization:
+						<ol start="2">
+							<li>Memory Utilization</li>
+						</ol>
+						<p>Efficiency (Productivity) of a Machine based on
+							cumulative tasks' Memory utilization:<br />
+							$e_m ={K \over K + {1 \over {1 \over M}-1}}$</p>
+					</div>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<div style="float: left; width: 50%">
+						<img src="Efficiency.png" />
+					</div>
+					<p>Machines' Efficiency based on CPU and Memory
+					loading of executing tasks
+					$e = e_c e_m$</p>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<div style="float: left">
+						<img src="RateOfWork.png" style="width: 60%" />
+					</div>
+					<p>Task also defined by an amount of "work" that
+					must be done (i.e. CPU cycles).  The executing
+					machine's efficiency impacts the rate of the
+					amount of work done over time.</p>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<p>Three types of Workflows modeled, differentiated by:</p>
+					<ul>
+						<li>Amount of work required by its Tasks</li>
+						<li>Number of tasks (total and concurrent)</li>
+						<li>Arrival Rate<br />
+							<center><img src="WorkflowArrivalModel.png" style="width: 90%" /></center>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Problem Introduction</h2>
+					<p>Three Task-Scheduling Algorithms:</p>
+					<ol>
+						<li>First-Come, First-Served (FCFS)<br />
+						<span style="font-size: 80%">
+						Prioritizes Tasks based on Earliest-Arriving Workflow
+						</span></li>
+						<li>Proportional Least Laxity First (PLLF)<br />
+						<span style="font-size: 80%">
+						Prioritizes Tasks based in projected laxity (normalized
+						tardiness) of Workflow
+						</span></li>
+						<li>Cost-Minimization Scheduling Algorithm (CMSA) [2]<br />
+						<span style="font-size: 80%">
+						Prioritizes Tasks based on Cost Function trade-off of
+						completing executing tasks vs. starting more tasks
+						</span></li>
+					</ol>
+				</section>
+				<section>
+					<h2>Past Results</h2>
+					<img src="CMSAPastResults.png" style="width: 100%" />
+                </section>
+				
+				<section>
+					<h2>Proposed Framework</h2>
+					<p>In order to evaluate the impact of error in the
+					information provided to scheduling algorithms, we propose
+					distinguishing Model Platform from Actual Platform</p>
+					<p>This allows Model of Workflow/Tasks (or Machines) to
+					have "error" distinct from the Actual components</p>
+					<p>Input to the Scheduler comes from Modeled
+					Workflow/Task Requirements and Model Platform resource
+					availabilty</p>
+				</section>
+				<section>
+					<h2>Proposed Framework</h2>
+					<img src="PlatformDiagram.png" />
+				</section>
+				<section>
+					<h2>Simulation Studies</h2>
+					<p>Using Simulation software, the amount of error in the
+					Model (Tasks' CPU work requirement) was taken from a
+					uniformly-distributed random number distribution [-X,X]
+					where X varied from 0.001 to 0.9</p>
+					<p>Each result represented averaged value across 10
+					simulations where random error term was unique</p>
+				</section>
+				<section>
+					<h2>Simulation Studies Results</h2>
+					<p>Percentage of all Workflows Late</p>
+					<table border="0" style="font-size: 80%">
+						<tr><th>Error, X</th>
+							<th>CMSA (Quad)</th>
+							<th>CMSA (Sig)</th>
+							<th>FCFS</th>
+							<th>PLLF</th>
+						</tr>
+						<tr><td>0.0</td>
+							<td style="background-color: #FFDDDD">16.54</td>
+							<td style="background-color: #BBFFBB">1.77</td>
+							<td style="background-color: #FFBBBB">38.49</td>
+							<td style="background-color: #FFBBBB">38.72</td>
+						</tr>
+						<tr><td>0.001</td>
+							<td style="background-color: #FFCCCC">30.52</td>
+							<td style="background-color: #CCFFCC">1.92</td>
+							<td style="background-color: #FF6666">61.39</td>
+							<td style="background-color: #FF8888">50.96</td>
+						</tr>
+						<tr><td>0.005</td>
+							<td style="background-color: #FFBBBB">34.75</td>
+							<td style="background-color: #BBFFBB">1.84</td>
+							<td style="background-color: #FF7777">59.48</td>
+							<td style="background-color: #FF8888">52.39</td>
+						</tr>
+						<tr><td>0.01</td>
+							<td style="background-color: #FFCCCC">30.86</td>
+							<td style="background-color: #DDFFDD">2.99</td>
+							<td style="background-color: #FF7777">60.35</td>
+							<td style="background-color: #FF9999">49.39</td>
+						</tr>
+						<tr><td>0.05</td>
+							<td style="background-color: #FFCCCC">28.87</td>
+							<td style="background-color: #FFEEEE">8.99</td>
+							<td style="background-color: #FF6666">63.60</td>
+							<td style="background-color: #FF9999">49.54</td>
+						</tr>
+						<tr><td>0.1</td>
+							<td style="background-color: #FFBBBB">32.11</td>
+							<td style="background-color: #FFDDDD">15.60</td>
+							<td style="background-color: #FF7777">60.77</td>
+							<td style="background-color: #FF8888">52.65</td>
+						</tr>
+						<tr><td>0.5</td>
+							<td style="background-color: #FFBBBB">34.34</td>
+							<td style="background-color: #FFCCCC">24.96</td>
+							<td style="background-color: #FF8888">52.85</td>
+							<td style="background-color: #FF8888">55.68</td>
+						</tr>
+						<tr><td>0.9</td>
+							<td style="background-color: #FFBBBB">32.93</td>
+							<td style="background-color: #FFCCCC">26.12</td>
+							<td style="background-color: #FF8888">54.36</td>
+							<td style="background-color: #FF7777">58.64</td>
+						</tr>
+					</table>
+<!--
+0.0     & \cellcolor{red! 6}16.54   & \cellcolor{green!9}1.77   & \cellcolor{red!28}38.49   & \cellcolor{red!28}38.72 \\
+0.001   & \cellcolor{red!20}30.52   & \cellcolor{green!9}1.92   & \cellcolor{red!51}61.39   & \cellcolor{red!40}50.96 \\
+0.005   & \cellcolor{red!24}34.75   & \cellcolor{green!9}1.84   & \cellcolor{red!49}59.48   & \cellcolor{red!42}52.39 \\
+0.01    & \cellcolor{red!20}30.86   & \cellcolor{green!7}2.99   & \cellcolor{red!50}60.35   & \cellcolor{red!39}49.39 \\
+0.05    & \cellcolor{red!18}28.87   & \cellcolor{green!1}8.99   & \cellcolor{red!53}63.60   & \cellcolor{red!39}49.54 \\
+0.1     & \cellcolor{red!22}32.11   & \cellcolor{red! 5}15.60   & \cellcolor{red!50}60.77   & \cellcolor{red!42}52.65 \\
+0.5     & \cellcolor{red!24}34.34   & \cellcolor{red!14}24.96   & \cellcolor{red!42}52.85   & \cellcolor{red!45}55.68 \\
+0.9     & \cellcolor{red!22}32.93   & \cellcolor{red!16}26.12   & \cellcolor{red!44}54.36   & \cellcolor{red!48}58.64 \\
+-->
+				</section>
+				<section>
+					<h2>Simulation Studies Results</h2>
+					<p>Effect on Tardiness of Small Error, $X=0.001$<br />
+						<img src="LowErrorNoFeedbackResults.png" style="width: 80%" />
+						<br /><span style="font-size: 60%">Bars represent no error, lines error $X=0.001$</span>
+					</p>
+				</section>
+				<section>
+					<h2>Conclusion</h2>
+					<p>Most scheduling algorithms studied have little robustness
+					with respect to even small amount of error</p>
+					<p>Underestimated work requirement (i.e. negative error in
+					model) leads to overloading machines, reducing efficiency,
+					compounding the problem of underestimating</p>
+					<p style="border: 1px solid black; margin: 1em"><i>
+					Feedback from Actual Platform of Task Completions
+					Crucial to Preventing Problem of Underestimatd Task Work
+					Requirement Leading to Unrobust Scheduling</i></p>
+				</section>
+				<section>
+					<h2>Simulation Studies Results</h2>
+					<p>Effect of Including Actual Platform Feedback even with Large Error, $X=0.9$<br />
+						<img src="HighErrorFullFeedbackResults.png" style="width: 70%" />
+						<br /><span style="font-size: 60%">Bars represent no error, lines error $X=0.9$</span>
+					</p>
+				</section>
+				<section>
+					<h2>Future Work</h2>
+					<ul>
+						<li>Non-Uniform Error</li>
+						<li>Error in Other Aspects of Modeled Tasks</li>
+						<li>Viability of Partial Feedback of Task Completions</li>
+						<li>Alternatives to Feedback to Prevent Underestimation
+						Problem</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Thank You</h2>
+					References:
+					<ol style="font-size: 50%">
+						<li>Shrestha, H.K., Grounds, N., Madden, J., Martin,
+							M., Antonio, J.K., Sachs, J., Zuech, J.,
+							Sanchez, C.: Scheduling workflows on a cluster of
+							memory managed multicore machines. Proceedings of
+							the International Conference on Parallel and
+							Distributed Processing Techniques and Applications
+							(PDPTA ’09) (July 2009)</li> 
+						<li>Grounds, N., Antonio, J.K., and Muehring, J.:
+							Cost-minimizing scheduling of workflows on a
+							cloud of memory managed multicore machines.
+							In MartinGilje Jaatun, Gansen Zhao, and Chunming
+							Rong, editors, <i>Cloud Computing</i>, volume 5931
+							of <i>Lecture Notes in Computer Science</i>,
+							pages 435–450. Springer Berlin Heidelberg, 2009.</li>
+						<li>Grounds, N., and Antonio, J.K.: A Model-Based
+							Scheduling Framework for Enhancing Robustness.
+							Proceedings of the International Conference on
+							Parallel and Distributed Processing Techniques and
+							Applications (PDPTA '18) (July 2018)</li>
+					</ol>
+				</section>
+			</div>
+		</div>
+		<script src="reveal.js/lib/js/head.min.js"></script>
+		<script src="reveal.js/js/reveal.js"></script>
+		<script>
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: false,
+				transition: 'default',
+				slideNumber: 'c/t',
+				math: {
+					mathjax: 'mathjax-2.7.0/MathJax.js',
+					config: 'TeX-AMS_HTML-full'
+				},
+				dependencies: [
+					{ src: 'reveal.js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'reveal.js/plugin/math/math.js', async: true }
+				]
+			});
+
+			window.addEventListener("mousedown", handleClick, false);
+			window.addEventListener("contextmenu", function(e) { e.preventDefault(); }, false);
+
+			function handleClick(e) {
+				e.preventDefault();
+				if(e.button === 0) Reveal.next(); 
+				if(e.button === 2) Reveal.prev(); 
+			}
+		</script>
+	</body>
+</html>
+
