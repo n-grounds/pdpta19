@@ -22,6 +22,8 @@
 				<section>
 					<h2>Enhancing Scheduling Robustness with Task Completion
 						Feedback and Resource Requirement Biasing</h2>
+					<p>Nicolas Grounds, Ph.D., John K. Antonio, Ph.D.,
+						University of Oklahoma</p>
 				</section>
 				<section>
 					<h2>Overview</h2>
@@ -80,23 +82,27 @@
 					<div style="float: left; width: 50%">
 						<img src="Efficiency.png" />
 					</div>
-					<p>Machines' Efficiency based on CPU and Memory
-					loading of executing tasks
-					$e = e_c e_m$</p>
+					<p>Machines' Efficiency/Productivity based on CPU and
+						Memory loading of executing tasks
+						$e = e_c e_m$</p>
 				</section>
 				<section>
 					<h2>Problem Introduction</h2>
-					<div style="float: left">
+					<div style="float: left; width: 50%">
 						<img src="RateOfWork.png" style="width: 60%" />
 					</div>
-					<p>Task also defined by an amount of "work" that
-					must be done (i.e. CPU cycles).  The executing
-					machine's efficiency impacts the rate of the
-					amount of work done over time.</p>
+					<div style="float: left; width: 50%">
+						Task also defined by an amount of "work" that
+						must be done (i.e. CPU cycles).  The executing
+						machine's efficiency/productivity impacts the rate of
+						the amount of work done over time.
+					</div>
 				</section>
 				<section>
 					<h2>Problem Introduction</h2>
-					<p>Three types of Workflows modeled, differentiated by:</p>
+					<p>Three types of Workflows modeled (after 3-region small
+						interactive jobs, semi-interactive medium jobs, and
+						batch-oriented large jobs), differentiated by:</p>
 					<ul>
 						<li>Amount of work required by its Tasks</li>
 						<li>Number of tasks (total and concurrent)</li>
@@ -126,36 +132,51 @@
 					</ol>
 				</section>
 				<section>
-					<h2>Past Results</h2>
+					<h2>Past Performance Results</h2>
 					<img src="CMSAPastResults.png" style="width: 100%" />
                 </section>
-				
 				<section>
-					<h2>Proposed Framework</h2>
-					<p>In order to evaluate the impact of error in the
-					information provided to scheduling algorithms, we propose
-					distinguishing Model Platform from Actual Platform</p>
-					<p>This allows Model of Workflow/Tasks (or Machines) to
-					have "error" distinct from the Actual components</p>
-					<p>Input to the Scheduler comes from Modeled
-					Workflow/Task Requirements and Model Platform resource
-					availabilty</p>
+					<h2>Modeling Error</h2>
+					<div style="float: left; width: 50%">
+						<img src="PlatformDiagram.png" />
+					</div>
+					<div style="float: left; width: 50%">
+						In order to evaluate the impact of error in the
+						information provided to scheduling algorithms, we
+						distinguish Model Platform (used for scheduling
+						decision-making) from Actual Platform (where
+						performance is measured)
+					</div>
 				</section>
 				<section>
-					<h2>Proposed Framework</h2>
-					<img src="PlatformDiagram.png" />
+					<h2>Defining Robustness</h2>
+					<p>Robustness to error in the model can mean:
+						<ul>
+							<li>Does the Scheduler produce the same
+								schedule (tasks assigned to the same
+								machine at the same time vs. the case
+								of no error)?
+							</li>
+							<li>Does the Scheduler achieve the same
+								performance outcome (e.g., makespan,
+								percent workflows late)?
+							</li>
+						</ul>
+					</p>
+					<p>Our research focuses exclusively on the latter</p>
 				</section>
 				<section>
 					<h2>Simulation Studies</h2>
 					<p>Using Simulation software, the amount of error in the
-					Model (Tasks' CPU work requirement) was taken from a
+					Model (tasks' resource requirements) was taken from a
 					uniformly-distributed random number distribution [-X,X]
-					where X varied from 0.001 to 0.9</p>
+					where X varied from 0.1% to 90%</p>
 					<p>Each result represented averaged value across 10
-					simulations where random error term was unique</p>
+					simulations where a unique seed was used to generated
+					random error for each tasks' requirement</p>
 				</section>
 				<section>
-					<h2>Simulation Studies Results</h2>
+					<h2>Past Results</h2>
 					<p>Percentage of all Workflows Late</p>
 					<table border="0" style="font-size: 80%">
 						<tr><th>Error, X</th>
@@ -170,43 +191,43 @@
 							<td style="background-color: #FFBBBB">38.49</td>
 							<td style="background-color: #FFBBBB">38.72</td>
 						</tr>
-						<tr><td>0.001</td>
+						<tr><td>0.1%</td>
 							<td style="background-color: #FFCCCC">30.52</td>
 							<td style="background-color: #CCFFCC">1.92</td>
 							<td style="background-color: #FF6666">61.39</td>
 							<td style="background-color: #FF8888">50.96</td>
 						</tr>
-						<tr><td>0.005</td>
+						<tr><td>0.5%</td>
 							<td style="background-color: #FFBBBB">34.75</td>
 							<td style="background-color: #BBFFBB">1.84</td>
 							<td style="background-color: #FF7777">59.48</td>
 							<td style="background-color: #FF8888">52.39</td>
 						</tr>
-						<tr><td>0.01</td>
+						<tr><td>1%</td>
 							<td style="background-color: #FFCCCC">30.86</td>
 							<td style="background-color: #DDFFDD">2.99</td>
 							<td style="background-color: #FF7777">60.35</td>
 							<td style="background-color: #FF9999">49.39</td>
 						</tr>
-						<tr><td>0.05</td>
+						<tr><td>5%</td>
 							<td style="background-color: #FFCCCC">28.87</td>
 							<td style="background-color: #FFEEEE">8.99</td>
 							<td style="background-color: #FF6666">63.60</td>
 							<td style="background-color: #FF9999">49.54</td>
 						</tr>
-						<tr><td>0.1</td>
+						<tr><td>10%</td>
 							<td style="background-color: #FFBBBB">32.11</td>
 							<td style="background-color: #FFDDDD">15.60</td>
 							<td style="background-color: #FF7777">60.77</td>
 							<td style="background-color: #FF8888">52.65</td>
 						</tr>
-						<tr><td>0.5</td>
+						<tr><td>50%</td>
 							<td style="background-color: #FFBBBB">34.34</td>
 							<td style="background-color: #FFCCCC">24.96</td>
 							<td style="background-color: #FF8888">52.85</td>
 							<td style="background-color: #FF8888">55.68</td>
 						</tr>
-						<tr><td>0.9</td>
+						<tr><td>90%</td>
 							<td style="background-color: #FFBBBB">32.93</td>
 							<td style="background-color: #FFCCCC">26.12</td>
 							<td style="background-color: #FF8888">54.36</td>
@@ -225,39 +246,169 @@
 -->
 				</section>
 				<section>
-					<h2>Simulation Studies Results</h2>
+					<h2>Past Results</h2>
 					<p>Effect on Tardiness of Small Error, $X=0.001$<br />
-						<img src="LowErrorNoFeedbackResults.png" style="width: 80%" />
+						<img src="LowErrorNoFeedbackResults.png" style="width: 70%" />
 						<br /><span style="font-size: 60%">Bars represent no error, lines error $X=0.001$</span>
 					</p>
 				</section>
 				<section>
-					<h2>Conclusion</h2>
-					<p>Most scheduling algorithms studied have little robustness
-					with respect to even small amount of error</p>
-					<p>Underestimated work requirement (i.e. negative error in
-					model) leads to overloading machines, reducing efficiency,
-					compounding the problem of underestimating</p>
-					<p style="border: 1px solid black; margin: 1em"><i>
-					Feedback from Actual Platform of Task Completions
-					Crucial to Preventing Problem of Underestimatd Task Work
-					Requirement Leading to Unrobust Scheduling</i></p>
+					<h2>Modeling Error Effects</h2>
+					<div style="float: left; width: 50%">
+						<img src="UnderestimatedErrorEffect_ModelTaskWork.png" />
+						<img src="UnderestimatedErrorEffect_ActualTaskWork.png" />
+					</div>
+					<div style="float: left; width: 50%">
+						Effect of model underestimating task requirement (hence
+						finish time) causes Scheduling algorithms to assign
+						more task(s) to the machine, resulting in efficiency /
+						production reduction.  This effect can be compounding.
+					</div>
+<!--
+	Task t1 work is 10, t2 is 10.  Model underestimates t1 as 9 and overestimates t2 as 11.
+	Tasks are assigned to same machine, t2 to begin after t1.
+	After t1 is modeled as done at time 9, t2 is assigned.  Assume machine efficiency drops
+	by 10%.  Thus t1 actually finishes at time 10.1 (rather than 10, because for the last
+	1 time unit it runs with 10% reduced efficiency).
+	Meanwhile t2 accomplished 1 of its 10 (modeled as 11) units of work by time 10.1, and
+	actually finishes at time 19.1, but isn't modeled as finished until 20.
+-->
 				</section>
 				<section>
-					<h2>Simulation Studies Results</h2>
-					<p>Effect of Including Actual Platform Feedback even with Large Error, $X=0.9$<br />
+					<h2>Past Results of Feedback</h2>
+					<p style="font-size: 80%">
+						Effect of Including Actual Platform Feedback even with
+						Large Error, $X=0.9$<br />
 						<img src="HighErrorFullFeedbackResults.png" style="width: 70%" />
 						<br /><span style="font-size: 60%">Bars represent no error, lines error $X=0.9$</span>
 					</p>
 				</section>
 				<section>
+					<h2>Current Research</h2>
+					<ul>
+						<li>Is full feedback of task completion necessary or
+							can similar results be achieved with partial
+							feedback?
+						</li>
+						<li>Can biasing model requirements to avoid
+							underestimating help avoid the compounding
+							problem of modeling tasks complete too early
+							and over-allocating future tasks to machines?
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Partial Feedback</h2>
+					<p style="font-size: 80%">
+						Even full feedback doesn't help as long as we allow
+						model to consider tasks complete (early) and Scheduler
+						to assign more tasks to the machine ($X=0.001$):<br />
+						<img src="Histogram_All_NoLoss_NoBias_LowAllError.png" style="width: 60%" />
+						<br /><span style="font-size: 60%">Bars represent no error, lines error $X=0.9$</span>
+					</p>
+				</section>
+				<section>
+					<h2>Model Biasing</h2>
+					<p>Since model contains terms known to have error,
+						three bias strategies are proposed to counter-act
+						the probability of underestimation:
+					</p>
+				</section>
+				<section>
+					<h2>Model Biasing</h2>
+					<ol>
+						<li>Constant bias strategy:<br />
+							<img src="ConstantBiasEquation.png"
+								style="height: 1.5em; border: 0" /><br />
+							<img src="BiasVisualization_Constant.png"
+								style="width: 70%" />
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Model Biasing</h2>
+					<ol start="2">
+						<li>Proportionate bias strategy:<br />
+							<img src="ProportionateBiasEquation.png"
+								style="height: 1.5em; border: 0" /><br />
+							<img src="BiasVisualization_Proportionate.png"
+								style="width: 70%" />
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Model Biasing</h2>
+					<ol>
+						<li>Simple bias strategy:<br />
+							<img src="SimpleBiasEquation.png"
+								style="height: 1.5em; border: 0" /><br />
+							<img src="BiasVisualization_Simple.png"
+								style="width: 70%" />
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Constant Bias Results</h2>
+					<p style="font-size: 80%">
+						Constant bias strategy achieves somewhat robust
+						performance for CMSA for up to 50% error ($X=0.5$),
+						less for FCFS and PLLF:<br />
+						<img src="Histogram_All_CompleteHighAllUniformError_WithCBias.png"
+							style="width: 60%" />
+						<br /><span style="font-size: 60%">Bars represent no
+							error, lines error $X=0.5$</span>
+					</p>
+				</section>
+				<section>
+					<h2>Proportionate Bias Results</h2>
+					<p style="font-size: 80%">
+						Proportionate bias strategy achieves relatively robust
+						performance for all algorithms but only up to 5% error
+						($X=0.05$):<br />
+						<img src="Histogram_All_CompleteMediumAllUniformError_WithRBias.png"
+							style="width: 60%" />
+						<br /><span style="font-size: 60%">Bars represent no
+							error, lines error $X=0.05$</span>
+					</p>
+				</section>
+				<section>
+					<h2>Simple Bias Results</h2>
+					<p style="font-size: 80%">
+						Simple bias strategy achieves relatively robust
+						performance for all algorithms but only up to 5% error
+						($X=0.05$):<br />
+						<img src="Histogram_All_CompleteMediumAllUniformError_WithBias.png"
+							style="width: 60%" />
+						<br /><span style="font-size: 60%">Bars represent no
+							error, lines error $X=0.05$</span>
+					</p>
+				</section>
+				<section>
+					<h2>Conclusion</h2>
+					<p style="font-size: 80%">
+						Most scheduling algorithms studied have little robustness
+						with respect to even small amount of error [3]</p>
+					<p style="font-size: 80%">
+						Underestimated work requirement (i.e. negative error in
+						model) leads to overloading machines, reducing efficiency,
+						compounding the problem of underestimating</p>
+					<p style="font-size: 80%">
+						Full feedback without model modeling tasks as complete
+						achieves robustness for all studied algorithms</p>
+					<p style="font-size: 80%; border: 1px solid black; margin: 1em"><i>
+						Bias strategies can achieve moderate robustness to [not
+						large] model error when full feedback isn't available, but
+						require various level of knowledge of the error
+						bounds</i></p>
+				</section>
+				<section>
 					<h2>Future Work</h2>
 					<ul>
 						<li>Non-Uniform Error</li>
-						<li>Error in Other Aspects of Modeled Tasks</li>
-						<li>Viability of Partial Feedback of Task Completions</li>
-						<li>Alternatives to Feedback to Prevent Underestimation
-						Problem</li>
+						<li>Error in Other Aspects of Modeled
+							Tasks / Workflows</li>
+						<li>Viability of biasing if error bounds is
+							unknown</li>
 					</ul>
 				</section>
 				<section>
@@ -291,7 +442,7 @@
 		<script src="reveal.js/js/reveal.js"></script>
 		<script>
 			Reveal.initialize({
-				controls: true,
+				controls: false,
 				progress: true,
 				history: true,
 				center: false,
