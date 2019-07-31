@@ -440,30 +440,6 @@ as good as the no-error ideal case for errors up to about $5\%$.
 	\label{fig:nofeedback-cbias-higherror}
 \end{figure*}
 
-Neither the proportionate nor simple bias strategies achieve acceptible
-results with errors as high as $50\%$.  In Figures
-\ref{fig:nofeedback-pbias-mederror} and \ref{fig:nofeedback-sbias-mederror}
-the effect of proportionate and simple bias strategies are shown, respectively,
-in the case of $5\%$ error with no feedback and ideal bias value $P=5\%$.
-For the proportionate bias strategy, all four scheduling algorithms complete
-about one third fewer workflows at a normalized tardiness of $-0.25$ and below
-although most of those workflows are completed at normalized tardiness up to
-zero, which is still before their deadline.  CMSA with both cost functions completes
-a few more workflows mildly late (normalized tardiness $0.25$ and below), PLLF
-completes more workflows at normalized tardinesses up to $1$, and FCFS a few
-more at $4+$.  Overall, the proportionate bias strategy fairly effectively
-makes all scheduling algorithms robust to errors up to $5\%$ even without any
-actual platform feedback available.
-
-The simple bias strategy achieves an even better result than the proportionate
-bias strategy for the $5\%$ bounded error case, showing fewer workflows
-shifting from being completed early to completed late.  In fact, the CMSA with
-Sigmoid cost function appears to achieve nearly identical results despite no
-feedback and up to $5\%$ error when using the simple bias strategy.  It
-therefore appears that the small chance for simple bias strategy to still
-underestimate task requirements is a better tradeoff than the exagerrated
-overestimates produced by the proportionate bias strategy.
-
 \begin{figure*}
 	\begin{center}
 		\includegraphics[width=0.9\textwidth,height=3in]{figures/Histogram_All_CompleteMediumAllUniformError_WithRBias.pdf}
@@ -491,6 +467,30 @@ overestimates produced by the proportionate bias strategy.
 		worst instance of error.}
 	\label{fig:nofeedback-sbias-mederror}
 \end{figure*}
+
+Neither the proportionate nor simple bias strategies achieve acceptible
+results with errors as high as $50\%$.  In Figures
+\ref{fig:nofeedback-pbias-mederror} and \ref{fig:nofeedback-sbias-mederror}
+the effect of proportionate and simple bias strategies are shown, respectively,
+in the case of $5\%$ error with no feedback and ideal bias value $P=5\%$.
+For the proportionate bias strategy, all four scheduling algorithms complete
+about one third fewer workflows at a normalized tardiness of $-0.25$ and below
+although most of those workflows are completed at normalized tardiness up to
+zero, which is still before their deadline.  CMSA with both cost functions completes
+a few more workflows mildly late (normalized tardiness $0.25$ and below), PLLF
+completes more workflows at normalized tardinesses up to $1$, and FCFS a few
+more at $4+$.  Overall, the proportionate bias strategy fairly effectively
+makes all scheduling algorithms robust to errors up to $5\%$ even without any
+actual platform feedback available.
+
+The simple bias strategy achieves an even better result than the proportionate
+bias strategy for the $5\%$ bounded error case, showing fewer workflows
+shifting from being completed early to completed late.  In fact, the CMSA with
+Sigmoid cost function appears to achieve nearly identical results despite no
+feedback and up to $5\%$ error when using the simple bias strategy.  It
+therefore appears that the small chance for simple bias strategy to still
+underestimate task requirements is a better tradeoff than the exagerrated
+overestimates produced by the proportionate bias strategy.
 
 \section{Summary and Future Work}
 \label{sec:Summary}
